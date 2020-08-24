@@ -1,0 +1,1 @@
+# Autoversion-Gradle
