@@ -1,0 +1,85 @@
+synchronized boolean createIfNotExist() {
+    File file = new File("version.properties")
+    Properties properties = new Properties()
+    int major, minor, patch
+    if (!file.exists()) {
+        file.createNewFile()
+        major = 1
+        minor = patch = 0
+        properties.setProperty 'major',"${major}"
+        properties.setProperty 'minor',"${minor}"
+        properties.setProperty 'patch',"${patch}"
+        OutputStream stream = new FileOutputStream(file)
+        properties.store(stream, null)
+        stream.close()
+        return true
+    }
+    return false
+}
+
+synchronized String getVersion() {
+    return "${getMajorVersion()}.${getMinorVersion()}.${getPatchVersion()}"
+}
+
+synchronized int getMajorVersion() {
+    File file = new File("version.properties")
+    Properties properties = new Properties()
+    InputStream stream = new FileInputStream(file)
+    properties.load(stream)
+    stream.close()
+    return Integer.valueOf(properties.getProperty("major"))
+}
+
+synchronized int getMinorVersion() {
+    File file = new File("version.properties")
+    Properties properties = new Properties()
+    InputStream stream = new FileInputStream(file)
+    properties.load(stream)
+    stream.close()
+    return Integer.valueOf(properties.getProperty("minor"))
+}
+
+synchronized int getPatchVersion() {
+    File file = new File("version.properties")
+    Properties properties = new Properties()
+    InputStream stream = new FileInputStream(file)
+    properties.load(stream)
+    stream.close()
+    return Integer.valueOf(properties.getProperty("patch"))
+}
+
+synchronized void setVersion(int major, int minor, int patch) {
+    File file = new File("version.properties")
+    Properties properties = new Properties()
+    OutputStream stream = new FileOutputStream(file)
+    properties.setProperty 'major',"${major}"
+    properties.setProperty 'minor',"${minor}"
+    properties.setProperty 'patch',"${patch}"
+    properties.store(stream,null)
+    stream.close()
+}
+
+task majorJar(group: 'jars') {
+    doFirst {
+        if (!createIfNotExist()) setVersion(getMajorVersion()+1,0,0)
+        rootProject.version = getVersion()
+    }
+}
+
+task minorJar(group: 'jars') {
+    doFirst {
+        if (!createIfNotExist()) setVersion(getMajorVersion(), getMinorVersion() + 1, 0)
+        rootProject.version = getVersion()
+    }
+}
+
+task patchJar(group: 'jars') {
+    doFirst {
+        if (!createIfNotExist()) setVersion(getMajorVersion(), getMinorVersion(), getPatchVersion() + 1)
+        rootProject.version = getVersion()
+    }
+}
+
+majorJar.finalizedBy shadowJar
+minorJar.finalizedBy shadowJar
+patchJar.finalizedBy shadowJar
