@@ -5,7 +5,7 @@ It's just a template file and currently depends on the gradle shadowJar plugin.
 To use this you can just copy the content of `version.gradle` into your project.
 Then all you need to do is put this in your `build.gradle`:
 <br>
-```gradle
+```
 apply from: 'version.gradle'
 ```
 Assuming your `build.gradle` and `version.gradle` exist in the same directory.
